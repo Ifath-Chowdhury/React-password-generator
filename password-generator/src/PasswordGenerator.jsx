@@ -1,10 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 
 const PasswordGenerator = () => {
   const [length, setLength] = useState(10);
   const [numberAllowed, setNumberAllowed] = useState(false);
   const [characterAllowed, setCharacterAllowed] = useState(false);
   const [password, setPassword] = useState('');
+
+  const generatePassword = useCallback(() => {
+    let pass = '';
+    let str = 'QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm';
+
+    if (numberAllowed) {
+        str += '1234567890';
+    }
+
+    if (characterAllowed) {
+        str += '!"£$%^&*()-=+_[]#;{}|<>?:@';
+    }
+
+    for (let i=1; i <= length; i++) {
+        let char = Math.floor(Math.random() * str.length+1);
+        pass += str.charAt(char);
+    }
+
+    setPassword(pass);
+  }, [length, numberAllowed, characterAllowed, setPassword]);
 
   return (
     <div className="container mx-auto mt-8">
@@ -26,6 +46,7 @@ const PasswordGenerator = () => {
               readOnly
             />
           </div>
+
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="length">
               Password Length: {length}
@@ -39,9 +60,12 @@ const PasswordGenerator = () => {
               value={length}
               onChange={(e) => setLength(e.target.value)}
             />
+
+            {length>10 ? <p className='text-green-500 font-bold'>Password Strength: Strong</p> : <p className='text-red-500 font-bold'>Password Strength: Weak</p>}
           </div>
+
           <div className="mb-4">
-            <label className="inline-flex items-center">
+            <label className="inline-flex items-center text-gray-700">
               <input
                 type="checkbox"
                 className="form-checkbox"
@@ -51,8 +75,9 @@ const PasswordGenerator = () => {
               <span className="ml-2">Include Numbers</span>
             </label>
           </div>
+
           <div className="mb-4">
-            <label className="inline-flex items-center">
+            <label className="inline-flex items-center text-gray-700">
               <input
                 type="checkbox"
                 className="form-checkbox"
@@ -62,7 +87,11 @@ const PasswordGenerator = () => {
               <span className="ml-2">Include Special Characters</span>
             </label>
           </div>
-          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="button">
+
+          <button 
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:bg-green-300" 
+            type="button"
+            onClick={generatePassword}>
             Generate Password
           </button>
         </div>
