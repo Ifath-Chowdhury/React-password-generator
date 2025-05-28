@@ -26,6 +26,10 @@ const PasswordGenerator = () => {
     setPassword(pass);
   }, [length, numberAllowed, characterAllowed, setPassword]);
 
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(password);
+  }
+
   return (
     <div className="container mx-auto mt-8">
         <h1 className="text-4xl font-bold text-center mb-8">
@@ -45,6 +49,7 @@ const PasswordGenerator = () => {
               value={password}
               readOnly
             />
+            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:bg-green-300" onClick={copyToClipboard}>Copy to clipboard</button>
           </div>
 
           <div className="mb-4">
@@ -61,7 +66,7 @@ const PasswordGenerator = () => {
               onChange={(e) => setLength(e.target.value)}
             />
 
-            {length>10 ? <p className='text-green-500 font-bold'>Password Strength: Strong</p> : <p className='text-red-500 font-bold'>Password Strength: Weak</p>}
+            {length>10 ? <p className='text-green-500'>Password Strength: Strong</p> : <p className='text-red-500'>Password Strength: Weak</p>}
           </div>
 
           <div className="mb-4">
