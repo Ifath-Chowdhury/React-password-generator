@@ -1,4 +1,5 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import useGeneratePassword from './useGeneratePassword';
 
 const PasswordGenerator = () => {
   const [length, setLength] = useState(10);
@@ -6,7 +7,11 @@ const PasswordGenerator = () => {
   const [characterAllowed, setCharacterAllowed] = useState(false);
   const [password, setPassword] = useState('');
 
-  const generatePassword = useCallback(() => {
+  const passwordRef = useRef(null);
+
+  // 'useCallback' used for the generatePassword function because it means that the function gets cached,
+  // preventing it from getting recreated everytime the component re-renders
+  /*const generatePassword = useCallback(() => {
     let pass = '';
     let str = 'QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm';
 
@@ -24,11 +29,19 @@ const PasswordGenerator = () => {
     }
 
     setPassword(pass);
-  }, [length, numberAllowed, characterAllowed, setPassword]);
+  }, [length, numberAllowed, characterAllowed, setPassword]);*/
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(password);
-  }
+  // The above function was encapsulated in a custom hook because it makes it easily testable and abstracts the code functionality
+
+  useEffect(() => {
+    setPassword(useGeneratePassword(length, numberAllowed, characterAllowed));
+  }, [length, numberAllowed, characterAllowed]);
+
+  const copyToClipboard = useCallback(() => {
+    passwordRef.current?.select();
+    passwordRef.current?.setSelectionRange(0, length);
+    window.navigator.clipboard.writeText(password);
+  }, [length, password]);
 
   return (
     <div className="container mx-auto mt-8">
@@ -48,6 +61,7 @@ const PasswordGenerator = () => {
               placeholder="Your password will appear here"
               value={password}
               readOnly
+              ref={passwordRef}
             />
             <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:bg-green-300" onClick={copyToClipboard}>Copy to clipboard</button>
           </div>
@@ -67,6 +81,8 @@ const PasswordGenerator = () => {
             />
 
             {length>10 ? <p className='text-green-500'>Password Strength: Strong</p> : <p className='text-red-500'>Password Strength: Weak</p>}
+            {numberAllowed ? <p className='text-green-500'>+ Numbers: Numbers make a password stronger</p> : null}
+            {characterAllowed ? <p className='text-green-500'>+ Characters: Special characters like punctuation symbols make a password even stronger</p> : null}
           </div>
 
           <div className="mb-4">
@@ -96,7 +112,7 @@ const PasswordGenerator = () => {
           <button 
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:bg-green-300" 
             type="button"
-            onClick={generatePassword}>
+            onClick={() => setPassword(useGeneratePassword(length, numberAllowed, characterAllowed))}>
             Generate Password
           </button>
         </div>
